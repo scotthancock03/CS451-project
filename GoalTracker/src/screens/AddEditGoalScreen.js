@@ -1,23 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  Pressable,
-  Platform,
-  Keyboard,
-  Alert,
-} from 'react-native';
+import { View, Text, TextInput, Pressable, Platform, Keyboard, Alert } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useGoals } from '../context/GoalContext';
+import { useTheme } from '../context/ThemeContext';
+import { getGlobalStyles } from '../styles/globalStyles';
 
 const AddEditGoalScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { addGoal, updateGoal } = useGoals();
+  const { colors } = useTheme();
+  const styles = getGlobalStyles(colors);
 
   const editingGoal = route.params?.goal;
   const isEditing = Boolean(editingGoal?.id);
@@ -42,9 +37,7 @@ const AddEditGoalScreen = () => {
 
   const onChange = (event, selectedDate) => {
     setShowPicker(Platform.OS === 'ios');
-    if (selectedDate) {
-      setDate(selectedDate);
-    }
+    if (selectedDate) setDate(selectedDate);
   };
 
   const handleSave = async () => {
@@ -61,99 +54,51 @@ const AddEditGoalScreen = () => {
       createdAt: editingGoal?.createdAt || new Date().toISOString(),
     };
 
-    if (isEditing) {
-      await updateGoal(payload);
-    } else {
-      await addGoal(payload);
-    }
-
+    isEditing ? await updateGoal(payload) : await addGoal(payload);
     navigation.goBack();
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{isEditing ? 'Edit Goal' : 'Create New Goal'}</Text>
+    <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+      <Text style={styles.header}>{isEditing ? 'Edit Goal' : 'Create New Goal'}</Text>
 
       <TextInput
         style={styles.input}
         placeholder="What is your goal?"
+        placeholderTextColor={colors.text + '80'}
         value={task}
         onChangeText={setTask}
-        textAlign="center"
       />
 
       <Pressable style={styles.inputWithIcon} onPress={() => showMode('date')}>
-        <Ionicons name="calendar-outline" size={24} color="#007AFF" />
-        <Text style={styles.inputText}>Date: {date.toDateString()}</Text>
+        <Ionicons name="calendar-outline" size={24} color={colors.secondary} />
+        <Text style={{ color: colors.text, flex: 1 }}>Date: {date.toDateString()}</Text>
       </Pressable>
 
       <Pressable style={styles.inputWithIcon} onPress={() => showMode('time')}>
-        <Ionicons name="time-outline" size={24} color="#007AFF" />
-        <Text style={styles.inputText}>
+        <Ionicons name="time-outline" size={24} color={colors.secondary} />
+        <Text style={{ color: colors.text, flex: 1 }}>
           Time: {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </Text>
       </Pressable>
 
-      <Pressable style={styles.saveButton} onPress={handleSave}>
-        <Text style={styles.saveButtonText}>{isEditing ? 'Update Goal' : 'Save Goal'}</Text>
+      <Pressable 
+        style={[styles.button, { backgroundColor: '#007AFF' }]} 
+        onPress={handleSave}
+      >
+        <Text style={styles.buttonText}>{isEditing ? 'Update Goal' : 'Save Goal'}</Text>
       </Pressable>
 
-      {showPicker ? (
+      {showPicker && (
         <DateTimePicker
           value={date}
           mode={pickerMode}
           display={Platform.OS === 'ios' ? 'spinner' : 'default'}
           onChange={onChange}
         />
-      ) : null}
+      )}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-  },
-  title: { fontSize: 22, fontWeight: 'bold', textAlign: 'center', marginBottom: 30 },
-  input: {
-    width: '90%',
-    height: 55,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 12,
-    marginBottom: 20,
-    textAlign: 'center',
-    backgroundColor: '#f9f9f9',
-    fontSize: 16,
-  },
-  inputWithIcon: {
-    width: '90%',
-    height: 55,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 12,
-    marginBottom: 20,
-    backgroundColor: '#f9f9f9',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 15,
-    gap: 12,
-  },
-  inputText: { flex: 1, fontSize: 16 },
-  saveButton: {
-    width: '90%',
-    height: 55,
-    backgroundColor: '#007AFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 12,
-    marginTop: 10,
-  },
-  saveButtonText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
-});
 
 export default AddEditGoalScreen;
