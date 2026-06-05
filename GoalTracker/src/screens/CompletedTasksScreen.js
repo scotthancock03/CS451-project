@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { View, FlatList, Text, ActivityIndicator, Pressable, Alert } from 'react-native';
+import { View, FlatList, Text, ActivityIndicator, Pressable, Alert, Platform } from 'react-native'; // Added Platform
 import { useNavigation } from '@react-navigation/native';
 import { useGoals } from '../context/GoalContext';
 import { useTheme } from '../context/ThemeContext';
@@ -18,6 +18,25 @@ const CompletedTasksScreen = () => {
       .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
   }, [goals]);
 
+  // Handler for clearing tasks compatible with both mobile and web
+  const handleClearCompleted = () => {
+    if (Platform.OS === 'web') {
+      const confirmed = window.confirm('Are you sure you want to remove all completed goals?');
+      if (confirmed) {
+        clearCompleted();
+      }
+    } else {
+      Alert.alert(
+        'Clear Completed', 
+        'Are you sure you want to remove all completed goals?', 
+        [
+          { text: 'Cancel', style: 'cancel' }, 
+          { text: 'Clear', style: 'destructive', onPress: clearCompleted }
+        ]
+      );
+    }
+  };
+
   if (isLoading) return <View style={[styles.container, styles.centered]}><ActivityIndicator size="large" color={colors.text} /></View>;
 
   return (
@@ -26,13 +45,20 @@ const CompletedTasksScreen = () => {
       <Text style={styles.subheader}>{completedGoals.length} completed goal(s)</Text>
       <FlatList
         data={completedGoals}
-        renderItem={({ item }) => <GoalCard goal={item} onDelete={deleteGoal} onEdit={(g) => navigation.navigate('AddEditGoal', { goal: g })} onToggleComplete={toggleComplete} />}
+        renderItem={({ item }) => (
+          <GoalCard 
+            goal={item} 
+            onDelete={deleteGoal} 
+            onEdit={(g) => navigation.navigate('AddEditGoal', { goal: g })} 
+            onToggleComplete={toggleComplete} 
+          />
+        )}
         ListEmptyComponent={<Text style={styles.emptyText}>Completed goals will appear here.</Text>}
       />
       {completedGoals.length > 0 && (
         <Pressable 
           style={[styles.button, { backgroundColor: '#007AFF' }]} 
-          onPress={() => Alert.alert('Clear', 'Remove all?', [{ text: 'Cancel' }, { text: 'Clear', onPress: clearCompleted }])}
+          onPress={handleClearCompleted} // Using the new platform-aware handler
         >
           <Text style={styles.buttonText}>Clear All Completed</Text>
         </Pressable>
@@ -40,4 +66,5 @@ const CompletedTasksScreen = () => {
     </View>
   );
 };
+
 export default CompletedTasksScreen;

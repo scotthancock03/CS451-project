@@ -1,24 +1,42 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Platform } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 
 const GoalCard = ({ goal, onDelete, onEdit, onToggleComplete }) => {
   const { colors, isDark } = useTheme();
   const cardBackgroundColor = isDark ? '#1C1C1E' : '#FFFFFF';
   
-  // A clean check for the description
   const hasDescription = goal.description && goal.description.trim().length > 0;
+
+  const handleConfirmDelete = () => {
+    if (Platform.OS === 'web') {
+      // Use standard browser confirmation for web
+      const confirmed = window.confirm("Are you sure you want to delete this task?");
+      if (confirmed) {
+        onDelete(goal.id);
+      }
+    } else {
+      // Use native Alert for iOS and Android
+      Alert.alert(
+        "Delete Task",
+        "Are you sure you want to delete this task?",
+        [
+          { text: "Cancel", style: "cancel" },
+          { text: "Delete", style: "destructive", onPress: () => onDelete(goal.id) }
+        ]
+      );
+    }
+  };
 
   return (
     <View style={[styles.card, { backgroundColor: cardBackgroundColor, borderColor: isDark ? '#333333' : colors.neutral }]}>
       
-      {/* Container for text - no fixed height or padding */}
+      {/* Container for text */}
       <View style={{ flex: 1, marginRight: 10 }}>
         <Text style={{ color: isDark ? '#FFFFFF' : colors.text, fontSize: 16, fontWeight: '600' }}>
           {goal.title}
         </Text>
         
-        {/* Only render this block if description exists */}
         {hasDescription && (
           <Text style={{ 
             color: isDark ? '#A0A0A0' : '#666666', 
@@ -53,7 +71,7 @@ const GoalCard = ({ goal, onDelete, onEdit, onToggleComplete }) => {
         <TouchableOpacity style={[styles.button, { backgroundColor: '#34C759' }]} onPress={() => onToggleComplete(goal.id)}>
           <Text style={styles.buttonText}>{goal.completed ? 'Undo' : 'Done'}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, { backgroundColor: '#ff4444' }]} onPress={() => onDelete(goal.id)}>
+        <TouchableOpacity style={[styles.button, { backgroundColor: '#ff4444' }]} onPress={handleConfirmDelete}>
           <Text style={styles.buttonText}>Delete</Text>
         </TouchableOpacity>
       </View>
@@ -68,7 +86,7 @@ const styles = StyleSheet.create({
     borderRadius: 8, 
     borderWidth: 1, 
     flexDirection: 'row', 
-    alignItems: 'center', // Changing back to 'center' helps align text with buttons
+    alignItems: 'center', 
     justifyContent: 'space-between' 
   },
   button: { 
