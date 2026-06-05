@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Pressable, Platform, Keyboard, Alert } from 'react-native';
+import { View, Text, TextInput, Pressable, Platform, Keyboard, Alert, StyleSheet } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -94,6 +94,11 @@ const AddEditGoalScreen = () => {
 
   return (
     <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+      {/* New Close Button */}
+      <Pressable style={localStyles.closeButton} onPress={() => navigation.goBack()}>
+        <Ionicons name="close" size={28} color={colors.text} />
+      </Pressable>
+
       <Text style={styles.header}>{isEditing ? 'Edit Goal' : 'Create New Goal'}</Text>
       <TextInput style={styles.input} placeholder="Goal name" placeholderTextColor={colors.text + '80'} value={task} onChangeText={setTask} />
       <TextInput style={[styles.input, { height: 80 }]} placeholder="Description" placeholderTextColor={colors.text + '80'} value={description} onChangeText={setDescription} multiline />
@@ -118,5 +123,15 @@ const AddEditGoalScreen = () => {
     </View>
   );
 };
+
+const localStyles = StyleSheet.create({
+  closeButton: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    padding: 10,
+    zIndex: 10,
+  }
+});
 
 export default AddEditGoalScreen;
