@@ -4,17 +4,37 @@ import { useTheme } from '../context/ThemeContext';
 
 const GoalCard = ({ goal, onDelete, onEdit, onToggleComplete }) => {
   const { colors, isDark } = useTheme();
-
-  // Dark mode background updated to #1C1C1E for a deep, near-black aesthetic
   const cardBackgroundColor = isDark ? '#1C1C1E' : '#FFFFFF';
+  
+  // A clean check for the description
+  const hasDescription = goal.description && goal.description.trim().length > 0;
 
   return (
     <View style={[styles.card, { backgroundColor: cardBackgroundColor, borderColor: isDark ? '#333333' : colors.neutral }]}>
-      <View style={{ flex: 1 }}>
+      
+      {/* Container for text - no fixed height or padding */}
+      <View style={{ flex: 1, marginRight: 10 }}>
         <Text style={{ color: isDark ? '#FFFFFF' : colors.text, fontSize: 16, fontWeight: '600' }}>
           {goal.title}
         </Text>
-        <Text style={{ color: isDark ? '#B0B0B0' : '#888888', fontSize: 12, marginTop: 4, fontWeight: 'bold' }}>
+        
+        {/* Only render this block if description exists */}
+        {hasDescription && (
+          <Text style={{ 
+            color: isDark ? '#A0A0A0' : '#666666', 
+            fontSize: 14, 
+            marginTop: 4, 
+            marginBottom: 4 
+          }}>
+            {goal.description}
+          </Text>
+        )}
+
+        <Text style={{ 
+          color: isDark ? '#B0B0B0' : '#888888', 
+          fontSize: 12, 
+          fontWeight: 'bold' 
+        }}>
           {new Date(goal.dueDate).toLocaleString([], { 
             month: 'numeric', 
             day: 'numeric', 
@@ -25,6 +45,7 @@ const GoalCard = ({ goal, onDelete, onEdit, onToggleComplete }) => {
         </Text>
       </View>
 
+      {/* Buttons */}
       <View style={{ flexDirection: 'column', gap: 6 }}>
         <TouchableOpacity style={[styles.button, { backgroundColor: '#007AFF' }]} onPress={() => onEdit(goal)}>
           <Text style={styles.buttonText}>Edit</Text>
@@ -47,7 +68,7 @@ const styles = StyleSheet.create({
     borderRadius: 8, 
     borderWidth: 1, 
     flexDirection: 'row', 
-    alignItems: 'center', 
+    alignItems: 'center', // Changing back to 'center' helps align text with buttons
     justifyContent: 'space-between' 
   },
   button: { 

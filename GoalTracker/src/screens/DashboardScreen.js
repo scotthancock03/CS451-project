@@ -11,7 +11,12 @@ export default function DashboardScreen() {
   const { goals, isLoading, deleteGoal, toggleComplete } = useGoals();
   const { colors } = useTheme();
   const styles = getGlobalStyles(colors);
-  const activeGoals = useMemo(() => goals.filter((g) => !g.completed), [goals]);
+
+  const activeGoals = useMemo(() => {
+    return goals
+      .filter((g) => !g.completed)
+      .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+  }, [goals]);
 
   if (isLoading) {
     return (
@@ -40,7 +45,6 @@ export default function DashboardScreen() {
         } 
       />
       
-      {/* Add New Goal button with primary blue color override */}
       <Pressable 
         style={[styles.button, { backgroundColor: '#007AFF' }]} 
         onPress={() => navigation.navigate('AddEditGoal')}

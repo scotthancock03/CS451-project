@@ -12,7 +12,11 @@ const CompletedTasksScreen = () => {
   const { colors } = useTheme();
   const styles = getGlobalStyles(colors);
 
-  const completedGoals = useMemo(() => goals.filter((g) => g.completed), [goals]);
+  const completedGoals = useMemo(() => {
+    return goals
+      .filter((g) => g.completed)
+      .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+  }, [goals]);
 
   if (isLoading) return <View style={[styles.container, styles.centered]}><ActivityIndicator size="large" color={colors.text} /></View>;
 
