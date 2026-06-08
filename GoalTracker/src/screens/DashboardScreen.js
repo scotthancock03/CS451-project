@@ -5,6 +5,7 @@ import { useGoals } from '../context/GoalContext';
 import { useTheme } from '../context/ThemeContext';
 import { getGlobalStyles } from '../styles/globalStyles';
 import GoalCard from '../components/GoalCard';
+import QuoteDisplay from '../components/Quote';
 
 export default function DashboardScreen() {
   const navigation = useNavigation();
@@ -30,6 +31,8 @@ export default function DashboardScreen() {
     <View style={styles.container}>
       <Text style={styles.header}>Daily Goals</Text>
       
+      <QuoteDisplay useTheme />
+
       <FlatList 
         data={activeGoals} 
         renderItem={({ item }) => (
